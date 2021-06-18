@@ -1,24 +1,11 @@
 'use strict';
 const db = require('@arangodb').db;
-const documentCollections = [
+const cols = [
   "todo","people","tools","places"
 ];
-const edgeCollections = [];
 
-for (const localName of documentCollections) {
-  const qualifiedName = module.context.collectionName(localName);
-  if (!db._collection(qualifiedName)) {
-    db._createDocumentCollection(qualifiedName);
-  } else if (module.context.isProduction) {
-    console.debug(`collection ${qualifiedName} already exists. Leaving it untouched.`)
-  }
-}
 
-for (const localName of edgeCollections) {
-  const qualifiedName = module.context.collectionName(localName);
-  if (!db._collection(qualifiedName)) {
-    db._createEdgeCollection(qualifiedName);
-  } else if (module.context.isProduction) {
-    console.debug(`collection ${qualifiedName} already exists. Leaving it untouched.`)
-  }
+for (const c of cols) {
+  if (!db._collection(c)) {
+    db._createDocumentCollection(c);
 }
