@@ -1,7 +1,7 @@
 'use strict';
 const db = require('@arangodb').db;
-const collectionName = 'people';
+const cols = ["todo","people","tools","places"];
 
-if (!db._collection(collectionName)) {
-  db._createDocumentCollection(collectionName);
+for (const c of cols) {
+  if (!db._collection(c)) db._createDocumentCollection(c);
 }
