@@ -6,7 +6,10 @@ module.exports = {
   schema: {
     // Describe the attributes with joi here
     _key: joi.string(),
-    todo: joi.string()
+    username: joi.string(),
+    name: joi.string(),
+    surname: joi.string(),
+    cf: joi.string()
   },
   forClient(obj) {
     // Implement outgoing transformations here

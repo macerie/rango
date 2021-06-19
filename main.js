@@ -1,2 +1,2 @@
 'use strict';
-module.context.use('/todo', require('./routes/todo'), 'todo');
+module.context.use('/people', require('./routes/people'), 'people');

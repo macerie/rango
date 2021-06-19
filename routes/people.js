@@ -5,11 +5,11 @@ const httpError = require('http-errors');
 const status = require('statuses');
 const errors = require('@arangodb').errors;
 const createRouter = require('@arangodb/foxx/router');
-const Todo = require('../models/todo');
+const people = require('../models/people');
 
-const todoItems = module.context.collection('todo');
+const peopleItems = module.context.collection('people');
 const keySchema = joi.string().required()
-.description('The key of the todo');
+.description('The key of the people');
 
 const ARANGO_NOT_FOUND = errors.ERROR_ARANGO_DOCUMENT_NOT_FOUND.code;
 const ARANGO_DUPLICATE = errors.ERROR_ARANGO_UNIQUE_CONSTRAINT_VIOLATED.code;
@@ -20,72 +20,72 @@ const HTTP_CONFLICT = status('conflict');
 const router = createRouter();
 module.exports = router;
 
-router.tag('todo');
+router.tag('people');
 
 router.get(function (req, res) {
-  res.send(todoItems.all());
+  res.send(peopleItems.all());
 }, 'list')
-.response([Todo], 'A list of todoItems.')
-.summary('List all todoItems')
+.response([people], 'A list of peopleItems.')
+.summary('List all peopleItems')
 .description(dd`
-  Retrieves a list of all todoItems.
+  Retrieves a list of all peopleItems.
 `);
 
 router.post(function (req, res) {
-  const todo = req.body;
+  const people = req.body;
   let meta;
   try {
-    meta = todoItems.save(todo);
+    meta = peopleItems.save(people);
   } catch (e) {
     if (e.isArangoError && e.errorNum === ARANGO_DUPLICATE) {
       throw httpError(HTTP_CONFLICT, e.message);
     }
     throw e;
   }
-  Object.assign(todo, meta);
+  Object.assign(people, meta);
   res.status(201);
   res.set('location', req.makeAbsolute(
-    req.reverse('detail', {key: todo._key})
+    req.reverse('detail', {key: people._key})
   ));
-  res.send(todo);
+  res.send(people);
 }, 'create')
-.body(Todo, 'The todo to create.')
-.response(201, Todo, 'The created todo.')
-.error(HTTP_CONFLICT, 'The todo already exists.')
-.summary('Create a new todo')
+.body(people, 'The people to create.')
+.response(201, people, 'The created people.')
+.error(HTTP_CONFLICT, 'The people already exists.')
+.summary('Create a new people')
 .description(dd`
-  Creates a new todo from the request body and
+  Creates a new people from the request body and
   returns the saved document.
 `);
 
 
 router.get(':key', function (req, res) {
   const key = req.pathParams.key;
-  let todo
+  let people
   try {
-    todo = todoItems.document(key);
+    people = peopleItems.document(key);
   } catch (e) {
     if (e.isArangoError && e.errorNum === ARANGO_NOT_FOUND) {
       throw httpError(HTTP_NOT_FOUND, e.message);
     }
     throw e;
   }
-  res.send(todo);
+  res.send(people);
 }, 'detail')
 .pathParam('key', keySchema)
-.response(Todo, 'The todo.')
-.summary('Fetch a todo')
+.response(people, 'The people.')
+.summary('Fetch a people')
 .description(dd`
-  Retrieves a todo by its key.
+  Retrieves a people by its key.
 `);
 
 
 router.put(':key', function (req, res) {
   const key = req.pathParams.key;
-  const todo = req.body;
+  const people = req.body;
   let meta;
   try {
-    meta = todoItems.replace(key, todo);
+    meta = peopleItems.replace(key, people);
   } catch (e) {
     if (e.isArangoError && e.errorNum === ARANGO_NOT_FOUND) {
       throw httpError(HTTP_NOT_FOUND, e.message);
@@ -95,15 +95,15 @@ router.put(':key', function (req, res) {
     }
     throw e;
   }
-  Object.assign(todo, meta);
-  res.send(todo);
+  Object.assign(people, meta);
+  res.send(people);
 }, 'replace')
 .pathParam('key', keySchema)
-.body(Todo, 'The data to replace the todo with.')
-.response(Todo, 'The new todo.')
-.summary('Replace a todo')
+.body(people, 'The data to replace the people with.')
+.response(people, 'The new people.')
+.summary('Replace a people')
 .description(dd`
-  Replaces an existing todo with the request body and
+  Replaces an existing people with the request body and
   returns the new document.
 `);
 
@@ -111,10 +111,10 @@ router.put(':key', function (req, res) {
 router.patch(':key', function (req, res) {
   const key = req.pathParams.key;
   const patchData = req.body;
-  let todo;
+  let people;
   try {
-    todoItems.update(key, patchData);
-    todo = todoItems.document(key);
+    peopleItems.update(key, patchData);
+    people = peopleItems.document(key);
   } catch (e) {
     if (e.isArangoError && e.errorNum === ARANGO_NOT_FOUND) {
       throw httpError(HTTP_NOT_FOUND, e.message);
@@ -124,14 +124,14 @@ router.patch(':key', function (req, res) {
     }
     throw e;
   }
-  res.send(todo);
+  res.send(people);
 }, 'update')
 .pathParam('key', keySchema)
-.body(joi.object().description('The data to update the todo with.'))
-.response(Todo, 'The updated todo.')
-.summary('Update a todo')
+.body(joi.object().description('The data to update the people with.'))
+.response(people, 'The updated people.')
+.summary('Update a people')
 .description(dd`
-  Patches a todo with the request body and
+  Patches a people with the request body and
   returns the updated document.
 `);
 
@@ -139,7 +139,7 @@ router.patch(':key', function (req, res) {
 router.delete(':key', function (req, res) {
   const key = req.pathParams.key;
   try {
-    todoItems.remove(key);
+    peopleItems.remove(key);
   } catch (e) {
     if (e.isArangoError && e.errorNum === ARANGO_NOT_FOUND) {
       throw httpError(HTTP_NOT_FOUND, e.message);
@@ -149,7 +149,7 @@ router.delete(':key', function (req, res) {
 }, 'delete')
 .pathParam('key', keySchema)
 .response(null)
-.summary('Remove a todo')
+.summary('Remove a people')
 .description(dd`
-  Deletes a todo from the database.
+  Deletes a people from the database.
 `);
